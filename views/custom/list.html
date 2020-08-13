@@ -1,0 +1,89 @@
+<div class="main">
+    <table class="layui-hide" id="table_list" lay-filter="table_filter">
+    </table>
+    <script type="text/html" id="bar">
+        <a class="layui-btn layui-btn-xs" lay-event="deal">已完成</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="no-deal">未完成</a>
+    </script>
+</div>
+
+<script>
+    layui.use(['table', 'form', 'element'], function () {
+        var table = layui.table;
+        var form = layui.form;
+        var element = layui.element;
+        var $ = layui.$;
+
+        //方法级渲染
+        table.render({
+            elem: '#table_list'
+            , url: '/custom/table'
+            , cols: [[
+                {field: 'wx_id', title: '微信ID', width: '20%'}
+                , {field: 'name', title: '联系人称谓', width: '10%'}
+                , {field: 'phone', title: '联系人电话', width: '15%'}
+                , {field: 'content', title: '占卜内容', width: '15%'}
+                , {field: 'status', title: '占卜结果', width: '10%'}
+                , {field: 'type', title: '虔诚公意', width: '10%'}
+                , {field: 'time', title: '提交时间', sort: true, width: '10%'}
+                , {fixed: 'right', width: '10%', align: 'center', toolbar: '#bar'}
+            ]]
+            , id: 'listReload'
+            , page: true
+            , limit: 20
+            , height: "full-130"
+            , loading: true
+        });
+
+        table.on('sort(table_filter)', function (obj) {
+            sortX = 0;
+            if (obj.type === 'asc') {
+                sortX = 1;
+            }
+
+            if ($('#q').val()) {
+                table.reload('listReload', {
+                    initSort: obj
+                    , where: {
+                        sort: sortX,
+                        q: $('#q').val()
+                    }
+                });
+            } else {
+                table.reload('listReload', {
+                    initSort: obj
+                    , where: {
+                        sort: sortX
+                    }
+                });
+            }
+        });
+
+        //监听工具条
+        table.on('tool(table_filter)', function (obj) {
+
+            var data = obj.data;
+            if (obj.event === 'deal') {
+                table.reload('listReload', {
+                where: {
+                    id: data.id
+                    , status: 1
+                }
+            });
+
+            } else if (obj.event === 'no-deal') {
+                table.reload('listReload', {
+                where: {
+                    id: data.id
+                    , status: 0
+                }
+            });
+            } else {
+                layer.msg('操作不存在');
+            }
+        });
+
+
+    });
+
+</script>

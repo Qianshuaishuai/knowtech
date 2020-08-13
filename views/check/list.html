@@ -1,0 +1,113 @@
+<div class="layui-layout layui-layout-admin" style="padding-left: 20px;">
+    <table class="layui-hide" id="table_list" lay-filter="table_filter">
+    </table>
+</div>
+
+<script>
+    layui.use(['table', 'form', 'element'], function () {
+        var table = layui.table;
+        var form = layui.form;
+        var element = layui.element;
+        var $ = layui.$;
+
+        //方法级渲染
+        table.render({
+            elem: '#table_list'
+            , url: '/check/table'
+            , cols: [[
+                {field: 'wx_id', title: '微信ID', width: '20%'}
+                , {field: 'money_count', title: '如意币个数', width: '10%'}
+                , {field: 'allie', title: '会员等级', width: '10%'}
+                , {field: 'is_shareholder', title: '是否为团队盟主', width: '10%'}
+                , {field: 'password', title: '团队密码', width: '10%'}
+                , {field: 'j_number', title: '吉祥连号', width: '10%'}
+                , {field: 'reason_cache', title: '上次吉祥理由', width: '15%'}
+                , {field: 'result_cache', title: '上次吉祥结果', width: '15%'}
+
+            ]]
+            , id: 'listReload'
+            , page: true
+            , limit: 20
+            , height: "full-130"
+            , loading: true
+        });
+
+        $('#add_paper').on('click', function () {
+            window.location.href = "/paper/addpaper"
+        });
+
+        $('.demoTable .layui-btn').on('click', function () {
+            table.reload('listReload', {
+                where: {
+                    q: $("#q").val()
+                    , sort: 0
+                }
+            });
+        });
+
+        table.on('sort(table_filter)', function (obj) {
+            sortX = 0;
+            if (obj.type === 'asc') {
+                sortX = 1;
+            }
+
+            if ($('#q').val()) {
+                table.reload('listReload', {
+                    initSort: obj
+                    , where: {
+                        sort: sortX,
+                        q: $('#q').val()
+                    }
+                });
+            } else {
+                table.reload('listReload', {
+                    initSort: obj
+                    , where: {
+                        sort: sortX
+                    }
+                });
+            }
+        });
+
+        //监听工具条
+        table.on('tool(table_filter)', function (obj) {
+
+            var data = obj.data;
+            if (obj.event === 'deal') {
+                table.reload('listReload', {
+                where: {
+                    id: data.id
+                    , status: 1
+                }
+            });
+
+            } else if (obj.event === 'no-deal') {
+                table.reload('listReload', {
+                where: {
+                    id: data.id
+                    , status: 0
+                }
+            });
+            } else {
+                layer.msg('操作不存在');
+            }
+        });
+
+        layui.use(['form', 'layedit', 'laydate','element','jquery'], function() {
+            var form = layui.form,
+            layer = layui.layer,
+            element=layui.element,
+            $=layui.jquery;
+            $(document).on('click','#reload',function(){
+                table.reload('listReload', {
+                where: {
+                    q: $("#q").val()
+                    , sort: 0
+                }
+                });
+            });
+        });
+    });
+
+
+</script>

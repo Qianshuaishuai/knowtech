@@ -1,0 +1,147 @@
+<div class="layui-layout layui-layout-admin" style="padding-left: 20px;">
+    <div class="layui-row" style="margin-top: 20px;">
+        <div class="layui-col-xs6">
+            <div class="layui-btn-group">
+            {{if .IsChecker}}
+                <button class="layui-btn" id="delete_correct_data">清除记录</button>
+            {{end}}
+            </div>
+        </div>
+    </div>
+
+    <table class="layui-hide" id="table_list" lay-filter="table_filter">
+    </table>
+
+    <script type="text/html" id="bar">
+        {{if .IsChecker}}
+        <a class="layui-btn layui-btn-xs" lay-event="change">修改状态</a>
+        {{else}}
+        <a class="layui-btn layui-btn-xs layui-btn-disabled">修改状态</a>
+        {{end}}
+    </script>
+</div>
+
+<div id="forms" style="padding: 10px;display: none">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">选择状态</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="0" title="待处理">
+                <input type="radio" name="status" value="1" title="修改中">
+                <input type="radio" name="status" value="2" title="已发布">
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['table'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.$;
+
+        var loaded;
+
+        function openLoading(elemId, layer) {
+            $(elemId).disabled = true;
+            loaded = layer.load(1);
+        }
+
+        function closeLoading(elemId, layer) {
+            $(elemId).disabled = false;
+            layer.close(loaded);
+        }
+
+        //方法级渲染
+        table.render({
+            elem: '#table_list'
+            , url: '/collect/table'
+            , cols: [[
+                {checkbox: true, fixed: true}
+                , {field: 'question_id', title: '试题ID', width: '10%'}
+                , {field: 'paper_id', title: '所属试卷', width: '10%'}
+                , {field: 'incorrect_type', title: '问题类型', width: '10%'}
+                , {field: 'description', title: '问题描述'}
+                , {field: 'status', title: '状态', width: '10%', align: 'center'}
+                , {field: 'from_where', title: '上报源', width: '5%'}
+                , {fixed: 'right', width: '10%', align: 'center', toolbar: '#bar'}
+            ]]
+            , id: 'listReload'
+            , page: false
+            , height: "full-130"
+            , loading: true
+        });
+
+        $('#delete_correct_data').on('click', function () {
+            var checkStatus = table.checkStatus('listReload');
+            var checkData = checkStatus["data"];
+            var ids = "";
+            var elemId = "#delete_correct_data";
+
+            if (checkData.length > 0) {
+                openLoading(elemId, layer);
+
+                for (var vs in checkData) {
+                    //check
+                    if (checkData[vs].status === 1) {
+                        closeLoading(elemId, layer);
+                        layer.msg("只能删除状态不是修改中的问题", {icon: 2, anim: 6});
+                        return false;
+                    }
+
+                    ids += checkData[vs].question_id + ","
+                }
+
+                $.post("/collect/delete", {ids: ids}, function (out) {
+                    closeLoading(elemId, layer);
+
+                    if (out.status === 0) {
+                        layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                            table.reload('listReload')
+                        })
+                    } else {
+                        layer.msg(out.message)
+                    }
+                }, "json");
+            } else {
+                layer.msg("请选择数据", {time: 1000});
+            }
+        });
+
+        table.on('tool(table_filter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'change') {
+                var ind = layer.open({
+                    type: 1,
+                    area: '600px',
+                    title: '选择状态',
+                    content: $('#forms'),
+                    btn: '确认',
+                    yes: function () {
+                        var status = $("input[name='status']:checked").val();
+                        if (status) {
+                            $.post("/collect/changestatus", {
+                                newStatus: status,
+                                questionId: data.question_id
+                            }, function (out) {
+                                if (out.status === 0) {
+                                    layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                                        table.reload('listReload');
+                                    })
+                                } else {
+                                    layer.msg(out.message)
+                                }
+                            }, "json");
+                            layer.close(ind);
+                        } else {
+                            layer.msg("请选择一个状态")
+                        }
+                    }
+                });
+            } else {
+                layer.msg('操作不存在');
+            }
+        });
+    });
+
+</script>

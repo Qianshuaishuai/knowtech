@@ -1,0 +1,234 @@
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:21",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "938e436b7c3752ca4618d11d45a703ff"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:21",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "386.385µs",
+    "ResponseFlag": "938e436b7c3752ca4618d11d45a703ff"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:50",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "dd53a69fbdaf7f51fb940bf8c1f8c1e3"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:50",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "245.475µs",
+    "ResponseFlag": "dd53a69fbdaf7f51fb940bf8c1f8c1e3"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:51",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "f65d21a4c745dbad6cb62e8fa36b5c14"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:51",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "223.857µs",
+    "ResponseFlag": "f65d21a4c745dbad6cb62e8fa36b5c14"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:51",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "6ce975a5e0aa851c5e658a9abd8e46ca"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:51",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "123.287µs",
+    "ResponseFlag": "6ce975a5e0aa851c5e658a9abd8e46ca"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "95e7a49fd3de8d4330a67445268869ed"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "154.328µs",
+    "ResponseFlag": "95e7a49fd3de8d4330a67445268869ed"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "17638f09ad8d551408b7f8d46414241e"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "167.402µs",
+    "ResponseFlag": "17638f09ad8d551408b7f8d46414241e"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "8f345124d51f90f7520e75873cb36af4"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "155.585µs",
+    "ResponseFlag": "8f345124d51f90f7520e75873cb36af4"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "fd6cab7a4217b981cf8f24fb5b092c72"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:52",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "126.616µs",
+    "ResponseFlag": "fd6cab7a4217b981cf8f24fb5b092c72"
+}
+
+{
+    "Tip": "APIRequest",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:108",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:53",
+    "IP": "::1",
+    "URI": "/login",
+    "Method": "GET",
+    "Args": "map[]",
+    "RequestFlag": "828526465d3255d6e6c26179787a7e8b"
+}
+
+{
+    "Tip": "APIResponse",
+    "Source": "/home/dashuai/go/src/knowtech/controllers/base.go:113",
+    "Tag": "API",
+    "Level": 1,
+    "BaseTime": "2020-08-13 11:12:53",
+    "StatusCode": 0,
+    "ResponseNo": 200,
+    "ResponseMsg": "成功",
+    "Duration": "153.78µs",
+    "ResponseFlag": "828526465d3255d6e6c26179787a7e8b"
+}
+

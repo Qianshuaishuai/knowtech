@@ -1,0 +1,419 @@
+<fieldset class="layui-elem-field">
+    <legend>试卷详情</legend>
+    <div class="layui-layout layui-layout-admin" style="padding-left: 40px;margin-top: 20px;">
+        <form class="layui-form layui-form-pane">
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷ID</label>
+                <div class="layui-input-block">
+                    <input type="text" name="paper_id" value="{{.Detail.PaperId}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">上次更新</label>
+                <div class="layui-input-block">
+                    <input type="text" name="paper_time" value="{{.UpdateTime}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="paper_name" name="paper_name" value="{{.Detail.Name}}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷总分</label>
+                <div class="layui-input-block">
+                    <input type="text" id="paper_full_score" lay-verify="integer" name="paper_full_score"
+                           value="{{.Detail.FullScore}}"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">用时(分钟)</label>
+                <div class="layui-input-block">
+                    <input type="text" id="paper_time" name="paper_time" lay-verify="integer"
+                           value="{{.Detail.TimeToAccomplish}}"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">所属课程</label>
+                <div class="layui-input-block">
+                    <select name="paper_course" id="paper_course" lay-verify="required">
+                    {{range $index,$elem := .CourseList}}
+                        <option value="{{$elem.CourseId}}"
+                        {{if eq $elem.CourseId $.CourseID}} selected {{end}}>{{$elem.Name}}
+                        </option>
+                    {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">所属学期</label>
+                <div class="layui-input-block">
+                    <select name="paper_semester" id="paper_semester" lay-verify="required">
+                    {{range $index,$elem := .SemesterList}}
+                        <option value="{{$elem.SemesterId}}"
+                        {{if eq $elem.SemesterId $.SemesterID}} selected {{end}}>{{$elem.Name}}
+                        </option>
+                    {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷类型</label>
+                <div class="layui-input-block">
+                    <select name="paper_type" id="paper_type" lay-verify="required">
+                    {{range $index,$elem := .TypeList}}
+                        <option value="{{$elem.Id}}"
+                        {{if eq $elem.Id $.TypeID}} selected {{end}}>{{$elem.Name}}
+                        </option>
+                    {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷难度</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="difficulty" value="1.0" title="超困难"
+                           {{if eq $.Detail.Difficulty 1.0}}checked{{end}}>
+                    <input type="radio" name="difficulty" value="3.0" title="困难"
+                           {{if eq $.Detail.Difficulty 3.0}}checked{{end}}>
+                    <input type="radio" name="difficulty" value="4.5" title="中等"
+                           {{if eq $.Detail.Difficulty 4.5}}checked{{end}}>
+                    <input type="radio" name="difficulty" value="5.5" title="简单"
+                           {{if eq $.Detail.Difficulty 5.5}}checked{{end}}>
+                    <input type="radio" name="difficulty" value="6.5" title="炒鸡简单"
+                           {{if eq $.Detail.Difficulty 6.5}}checked{{end}}>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">适用省份</label>
+                <div class="layui-input-block">
+                {{range $index,$elem := .ProvinceList}}
+                    <input type="checkbox" name="province{{$index}}" value="{{$elem.ProvinceId}}"
+                           title="{{$elem.Name}}" {{index $.ProvinceMap $elem.ProvinceId}}>
+                {{end}}
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="changeAddPaper">修改</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</fieldset>
+
+{{range $index,$elem:= .Chapters}}
+<fieldset class="layui-elem-field" id="chapterIndex{{$index}}">
+    <legend>章节{{$index}}</legend>
+    <form class="layui-form layui-form-pane" id="form_chapter_{{$index}}">
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_name" value="{{$elem.Name}}" class="layui-input">
+                <input type="hidden" id="chapter_name_{{$index}}" value="{{$elem.Name}}">
+                <input type="hidden" id="chapter_id_{{$index}}" value="{{$elem.ChapterId}}">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节描述</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_detail" value="{{$elem.Detail}}" class="layui-input">
+                <input type="hidden" id="chapter_detail_{{$index}}" value="{{$elem.Detail}}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="chapter" id="{{$index}}">修改</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</fieldset>
+{{end}}
+
+<div id="chapterIndex" style="text-align: center">
+    <div style="margin-bottom: 10px">
+        <ul style="padding: 10px" id="chapterList">
+        {{range $index,$elem:= .Chapters}}
+            <li id="chapterListItem{{$index}}"
+                style="padding: 5px;border: 0.5px solid #e2e2e2; margin-bottom: 5px">
+                <a href="#chapterIndex{{$index}}">章节{{$index}} - {{$elem.Name}}</a>
+                <button class="layui-btn layui-btn-primary layui-btn-xs layui-btn-radius" style="height: 25px"
+                        onclick="deleteChapterFunc({{$elem.ChapterId}})">
+                    <i class="layui-icon" style="margin-right: 0px">&#xe640;</i>
+                </button>
+            </li>
+        {{end}}
+        </ul>
+    </div>
+    <div>
+        <button class="layui-btn layui-btn-sm layui-btn-radius" style="margin-bottom: 8px;height: 38px"
+                id="addPaperChapterBtn">
+            <i class="layui-icon" style="margin-right: 0px">&#xe654;</i>
+        </button>
+    </div>
+</div>
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/Sortable.min.js"></script>
+
+<script>
+    function deleteChapterFunc(chapterId) {
+        var send_data = {};
+        send_data.chapter_id = chapterId;
+
+        $.post('{{urlfor "TempController.DeleteChapterTemp"}}', send_data, function (out) {
+            if (out.status === 0) {
+                window.location.reload();
+            } else {
+                console.msg(out.message)
+            }
+        }, "json");
+    }
+
+    layui.use(['form', 'element', 'layer', 'jquery', 'util'], function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var util = layui.util;
+
+        var e1 = document.getElementById('chapterList');
+        Sortable.create(e1, {
+            sort: true,
+            onEnd: function (event) {
+                var newIndex = event.newIndex;
+                var oldIndex = event.oldIndex;
+                var sortList = [];
+                var paperId = '{{.Detail.PaperId}}';
+                var chapterIdJson = '{{.ChapterIds}}';
+                var chapterIds = JSON.parse(chapterIdJson);
+
+                if (oldIndex === newIndex) {
+                    return;
+                }
+
+                if (oldIndex > newIndex) {
+                    for (var i = oldIndex - 1; i >= newIndex; i--) {
+                        var sortMap = {};
+                        sortMap.o = chapterIds[i];
+                        sortMap.n = chapterIds[i + 1];
+                        sortList.push(sortMap);
+                    }
+                } else {
+                    for (var i = oldIndex + 1; i <= newIndex; i++) {
+                        var sortMap = {};
+                        sortMap.o = chapterIds[i];
+                        sortMap.n = chapterIds[i - 1];
+                        sortList.push(sortMap);
+                    }
+                }
+                var sortMap2 = {};
+                sortMap2.o = chapterIds[oldIndex];
+                sortMap2.n = chapterIds[newIndex];
+                sortList.push(sortMap2);
+
+                // post
+                layer.load(2);
+                $.post('{{urlfor "TempController.ChangeChapterIndex"}}', {sort: JSON.stringify(sortList)},
+                        function (out) {
+                            if (out.status === 0) {
+                                window.location.reload();
+                            } else {
+                                layer.msg(out.message);
+                                window.location.reload();
+                            }
+                        }, "json");
+            }
+        });
+
+        form.on('submit(changeAddPaper)', function (data) {
+            var form_data = data.field;
+            var send_data = {};
+            var old_paper_name = '{{.Detail.Name}}';
+            var old_paper_full_score = '{{.Detail.FullScore}}';
+            var old_paper_time = '{{.Detail.TimeToAccomplish}}';
+            var old_paper_courseId = '{{.Detail.CourseId}}';
+            var old_paper_semesterId = '{{.Detail.SemesterId}}';
+            var old_paper_type = '{{.Detail.TypeId}}';
+            var old_paper_difficulty = '{{.Detail.Difficulty}}';
+
+            send_data.paper_id = form_data["paper_id"];
+
+            if (form_data["paper_name"] != old_paper_name) {
+                send_data.paper_name = form_data["paper_name"]
+            }
+
+            if (form_data["paper_full_score"].toString() != old_paper_full_score) {
+                send_data.full_score = form_data["paper_full_score"]
+            }
+
+            if (form_data["paper_time"].toString() != old_paper_time) {
+                send_data.paper_time = form_data["paper_time"]
+            }
+
+            if (form_data["paper_course"].toString() != old_paper_courseId) {
+                send_data.paper_course = form_data["paper_course"]
+            }
+
+            if (form_data["paper_semester"].toString() != old_paper_semesterId) {
+                send_data.paper_semester = form_data["paper_semester"]
+            }
+
+            if (form_data["paper_type"].toString() != old_paper_type) {
+                send_data.paper_type = form_data["paper_type"]
+            }
+
+            if (form_data["difficulty"].toString() != old_paper_difficulty) {
+                send_data.difficulty = form_data["difficulty"]
+            }
+
+            var pro = "";
+            for (var i = 0; i < 31; i++) {
+                if (form_data["province" + i]) {
+                    pro += form_data["province" + i] + ","
+                }
+            }
+
+            send_data.province = pro;
+
+            data.elem.disabled = true;
+            layer.load(2);
+            $.post('{{urlfor "TempController.AddPaperEdit"}}', send_data, function (out) {
+                if (out.status === 0) {
+                    layer.msg("操作成功", {icon: 1, time: 1000}, function () {
+                        window.location.reload();
+                        data.elem.disabled = false;
+                    })
+                } else {
+                    data.elem.disabled = false;
+                    layer.msg(out.message)
+                }
+            }, "json");
+            return false;
+        });
+
+        form.verify({
+            integer: function (value, item) {
+                value = trim(value);
+                if (/[^0-9]/.test(value)) {
+                    return '只能为正整数';
+                }
+            }
+        });
+
+        //弹出层
+        layer.open({
+            type: 1,
+            title: '章节目录',
+            offset: 'r',
+            shade: 0,
+            closeBtn: 0,
+            maxHeight: 500,
+            content: $('#chapterIndex')
+        });
+
+        var addChapterDialog;
+
+        $('#addPaperChapterBtn').on('click', function () {
+            // 添加一个Chapter
+            // 1. 弹出输入框
+            // 2. 发送到后台
+            // 3. 刷新页面
+            addChapterDialog = layer.open(
+                    {
+                        id: "addChapterLayer",
+                        type: 1,
+                        title: '添加章节',
+                        closeBtn: 0,
+                        shadeClose: true,
+                        area: '700px',
+                        content: $('#addChapterDiv'),
+                    }
+            )
+        })
+
+        form.on('submit(chapterAddForm)', function (data) {
+            var form_data = data.field;
+
+            $.post('{{urlfor "TempController.AddChapterTemp"}}', form_data, function (out) {
+                        if (out.status === 0) {
+                            layer.msg("操作成功", {icon: 1, time: 1000}, function () {
+                                window.location.reload();
+                                data.elem.disabled = false;
+                            })
+                        } else {
+                            data.elem.disabled = false;
+                            layer.msg(out.message)
+                        }
+                    }, "json"
+            );
+
+            if (addChapterDialog != null) {
+                layer.close(addChapterDialog)
+            }
+            return false;
+        })
+
+        form.on('submit(chapter)', function (data) {
+            var index = data.elem.id;
+            var form_data = data.field;
+            var send_data = {};
+
+            var old_chapter_name = $('#chapter_name_' + index).val();
+            var old_chapter_detail = trim($('#chapter_detail_' + index).val());
+
+            if (form_data["chapter_name"].toString() != old_chapter_name) {
+                send_data.chapter_name = form_data["chapter_name"]
+            }
+
+            if (form_data["chapter_detail"].toString() != old_chapter_detail.toString()) {
+                send_data.chapter_detail = form_data["chapter_detail"]
+            }
+
+            send_data.chapter_id = $('#chapter_id_' + index).val();
+
+            data.elem.disabled = true;
+            layer.load(2);
+            $.post('{{urlfor "TempController.AddChapterEdit"}}', send_data, function (out) {
+                if (out.status == 0) {
+                    layer.msg("操作成功", {icon: 1, time: 1000}, function () {
+                        window.location.reload();
+                        data.elem.disabled = false;
+                    })
+                } else {
+                    data.elem.disabled = false;
+                    layer.msg(out.message)
+                }
+            }, "json");
+            return false;
+        })
+    });
+
+</script>
+
+<div id="addChapterDiv" style="display: none;padding: 12px">
+    <form class="layui-form layui-form-pane">
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_name" placeholder="不要加序号" class="layui-input">
+                <input type="hidden" name="paper_id" value="{{.Detail.PaperId}}" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节描述</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_detail" placeholder="可不填" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="chapterAddForm">添加</button>
+            </div>
+        </div>
+    </form>
+</div>

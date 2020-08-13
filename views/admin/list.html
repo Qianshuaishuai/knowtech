@@ -1,0 +1,95 @@
+<div class="layui-layout layui-layout-admin" style="padding-left: 20px;">
+    <div class="layui-row" style="margin-top: 20px;">
+        <div class="layui-col-xs6">
+            <button class="layui-btn" id="add_user">新增</button>
+        </div>
+    </div>
+
+    <table class="layui-hide" id="table_list" lay-filter="table_filter">
+    </table>
+
+    <script type="text/html" id="bar">
+        {{if eq .Role -1}}
+        <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="change">启/禁</a>
+        {{end}}
+    </script>
+</div>
+
+<div id="forms" style="padding: 10px;display: none">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">启用/禁用</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="1" title="启用">
+                <input type="radio" name="status" value="0" title="禁用">
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['table'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.$;
+
+        //方法级渲染
+        table.render({
+            elem: '#table_list'
+            , url: '/admin/table'
+            , cols: [[
+                {field: 'id', title: 'ID', width: '10%'}
+                , {field: 'login_name', title: '登录名'}
+                , {field: 'contact', title: '微信/QQ', width: '10%'}
+                , {field: 'status', title: '状态', width: '10%', align: 'center'}
+                , {field: 'role', title: '角色', width: '10%', align: 'center'}
+                , {fixed: 'right', width: '10%', align: 'center', toolbar: '#bar'}
+            ]]
+            , id: 'listReload'
+            , page: true
+            , limit: 20
+            , height: "full-130"
+            , loading: true
+        });
+
+        $('#add_user').on('click', function (event) {
+            window.location.href = '/admin/add'
+        });
+
+        table.on('tool(table_filter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'change') {
+                var ind = layer.open({
+                    type: 1,
+                    area: '600px',
+                    title: '选择状态',
+                    content: $('#forms'),
+                    btn: '确认',
+                    yes: function () {
+                        var status = $("input[name='status']:checked").val();
+                        if (status) {
+                            $.post("/admin/changestatus", {
+                                newStatus: status,
+                                id: data.id
+                            }, function (out) {
+                                if (out.status === 0) {
+                                    layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                                        table.reload('listReload');
+                                    })
+                                } else {
+                                    layer.msg(out.message)
+                                }
+                            }, "json");
+                            layer.close(ind);
+                        } else {
+                            layer.msg("请选择一个状态")
+                        }
+                    }
+                });
+            } else {
+                layer.msg('操作不存在');
+            }
+        });
+    });
+
+</script>

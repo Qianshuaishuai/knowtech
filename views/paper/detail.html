@@ -1,0 +1,321 @@
+<fieldset class="layui-elem-field">
+    <legend>试卷详情</legend>
+    <div class="layui-layout layui-layout-admin" style="padding-left: 40px;margin-top: 20px;">
+        <form class="layui-form layui-form-pane">
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷ID</label>
+                <div class="layui-input-block">
+                    <input type="text" name="paper_id" value="{{.Detail.PaperId}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">上次更新</label>
+                <div class="layui-input-block">
+                    <input type="text" name="paper_time" value="{{.UpdateTime}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="paper_name" id="paper_name" value="{{.Detail.Name}}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷类型</label>
+                <div class="layui-input-block">
+                    <select name="paper_type" id="paper_type" lay-verify="required">
+                    {{range $index,$elem := .typeList}}
+                        <option value="{{$elem.Id}}"
+                        {{if eq $elem.Id $.Detail.PaperType}} selected {{end}}>{{$elem.Name}}
+                        </option>
+                    {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷难度</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="difficulty" value="1" title="超困难"
+                           {{if eq .Difficulty 2}}checked{{end}}>
+                    <input type="radio" name="difficulty" value="3" title="困难"
+                           {{if eq .Difficulty 3 }}checked{{end}}>
+                    <input type="radio" name="difficulty" value="4.5" title="中等"
+                           {{if eq .Difficulty 4 }}checked{{end}}>
+                    <input type="radio" name="difficulty" value="5.5" title="简单"
+                           {{if eq .Difficulty 5}}checked{{end}}>
+                    <input type="radio" name="difficulty" value="6.5" title="炒鸡简单"
+                           {{if eq .Difficulty 6}}checked{{end}}>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试卷总分</label>
+                <div class="layui-input-block">
+                    <input type="text" name="paper_full_score" value="{{.Detail.FullScore}}" lay-verify="number"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">适用省份</label>
+                <div class="layui-input-block">
+                {{range $index,$elem := .ProvinceList}}
+                    <input type="checkbox" name="province{{$index}}" value="{{$elem.ProvinceId}}"
+                           title="{{$elem.Name}}" {{index $.ProvinceMap $elem.ProvinceId}}>
+                {{end}}
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="changePaper">修改</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</fieldset>
+
+<fieldset class="layui-elem-field">
+    <legend>题目列表</legend>
+    <div class="layui-layout layui-layout-admin" style="padding-left: 40px;margin-top: 20px;">
+        <form class="layui-form layui-form-pane">
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">SetID</label>
+                <div class="layui-input-block">
+                    <input type="text" name="set_id" value="{{.Detail.QuestionSet.SetId}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">用时(分)</label>
+                <div class="layui-input-block">
+                    <input type="text" name="set_time_accomplish" value="{{.Detail.QuestionSet.TimeToAccomplish}}"
+                           readonly
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">题目总数</label>
+                <div class="layui-input-block">
+                    <input type="text" name="set_question_lens" value="{{.QuestionLens}}道 （题目总数=大题数量+小题数量）" readonly
+                           class="layui-input">
+                </div>
+            </div>
+        </form>
+    </div>
+</fieldset>
+
+{{range $index,$elem:= .Detail.QuestionSet.PaperQuestionSetChapters}}
+<fieldset class="layui-elem-field" id="chapterIndex{{$index}}">
+    <legend>章节{{$index}}</legend>
+    <form class="layui-form layui-form-pane" id="form_chapter_{{$index}}">
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_name" value="{{$elem.Name}}" class="layui-input">
+                <input type="hidden" id="chapter_name_{{$index}}" value="{{$elem.Name}}">
+                <input type="hidden" id="chapter_id_{{$index}}" value="{{$elem.ChapterId}}">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节描述</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_detail" value="{{$elem.Detail}}" class="layui-input">
+                <input type="hidden" id="chapter_detail_{{$index}}" value="{{$elem.Detail}}">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">小题个数</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_question_count" value="{{$elem.QuestionCount}}" class="layui-input">
+                <input type="hidden" id="chapter_question_count_{{$index}}" value="{{$elem.QuestionCount}}"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">用时</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_time" value="{{$elem.TimeToAccomplish}}" readonly class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">章节总分</label>
+            <div class="layui-input-block">
+                <input type="text" name="chapter_score" value="{{$elem.PresetScore}}" lay-verify="number"
+                       class="layui-input">
+                <input type="hidden" id="chapter_score_{{$index}}" value="{{$elem.PresetScore}}">
+            </div>
+        </div>
+    {{$Questions := index $.ChapterResult $index}}
+        <div class="layui-form-item" pane>
+            <label class="layui-form-label">问题集合</label>
+            <div class="layui-input-block" style="padding: 10px">
+                <div class="layui-fluid">
+                    <div class="layui-row layui-col-space10">
+                    {{range $i,$e := $Questions}}
+                    {{if ne $e 0}}
+                        <div class="layui-col-md2">
+                            <a class="layui-btn layui-btn-primary" href="/question/detail?question_id={{$e}}">{{$e}}</a>
+                        </div>
+                    {{end}}
+                    {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="chapter" id="{{$index}}">修改</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</fieldset>
+{{end}}
+
+<ul style="display:none;padding: 10px" id="chapterIndex">
+{{range $index,$elem:= .Detail.QuestionSet.PaperQuestionSetChapters}}
+    <li style="padding: 5px;">
+        <a href="#chapterIndex{{$index}}">章节{{$index}} - {{$elem.Name}}</a>
+    </li>
+{{end}}
+</ul>
+
+<script>
+    layui.use(['form', 'element', 'layer', 'jquery', 'util'], function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var util = layui.util;
+
+        //Top按钮
+        util.fixbar({
+            bar1: false
+        });
+
+        form.on('submit(changePaper)', function (data) {
+            var form_data = data.field;
+            var send_data = {};
+            var old_paper_name = '{{.Detail.Name}}';
+            var old_paper_full_score = '{{.Detail.FullScore}}';
+            var old_paper_type = '{{.Detail.PaperType}}';
+            var old_paper_difficulty = '{{.Detail.Difficulty}}';
+
+            send_data.paper_id = form_data["paper_id"];
+
+            if (form_data["paper_name"] != old_paper_name) {
+                send_data.paper_name = form_data["paper_name"]
+            }
+
+            if (form_data["paper_full_score"].toString() != old_paper_full_score) {
+                send_data.full_score = form_data["paper_full_score"]
+            }
+
+            if (form_data["paper_type"].toString() != old_paper_type) {
+                send_data.paper_type = form_data["paper_type"]
+            }
+
+            if (form_data["difficulty"].toString() != old_paper_difficulty) {
+                send_data.difficulty = form_data["difficulty"]
+            }
+
+            var pro = "";
+            for (var i = 0; i < 31; i++) {
+                if (form_data["province" + i]) {
+                    pro += form_data["province" + i] + ","
+                }
+            }
+
+            send_data.province = pro;
+
+            data.elem.disabled = true;
+            layer.load(2);
+            $.post('{{urlfor "PaperController.Edit"}}', send_data, function (out) {
+                if (out.status === 0) {
+                    layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                        window.location.reload();
+                        data.elem.disabled = false;
+                    })
+                } else {
+                    data.elem.disabled = false;
+                    layer.msg(out.message)
+                }
+            }, "json");
+
+            return false;
+        });
+
+        form.on('submit(chapter)', function (data) {
+            var index = data.elem.id;
+            var form_data = data.field;
+            var send_data = {};
+
+            var old_chapter_name = $('#chapter_name_' + index).val();
+            var old_chapter_detail = trim($('#chapter_detail_' + index).val());
+            var old_chapter_question_count = $('#chapter_question_count_' + index).val();
+            var old_chapter_score = $('#chapter_score_' + index).val();
+
+            if (form_data["chapter_name"].toString() != old_chapter_name) {
+                send_data.chapter_name = form_data["chapter_name"]
+            }
+
+            if (form_data["chapter_detail"].toString() != old_chapter_detail.toString()) {
+                send_data.chapter_detail = form_data["chapter_detail"]
+            }
+
+            if (form_data["chapter_question_count"].toString() != old_chapter_question_count) {
+                send_data.chapter_question_count = form_data["chapter_question_count"]
+            }
+
+            if (form_data["chapter_score"].toString() != old_chapter_score) {
+                send_data.chapter_score = form_data["chapter_score"]
+            }
+
+            send_data.chapter_id = $('#chapter_id_' + index).val();
+
+            data.elem.disabled = true;
+            layer.load(2);
+            $.post('{{urlfor "ChapterController.Edit"}}', send_data, function (out) {
+                if (out.status == 0) {
+                    layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                        window.location.reload();
+                        data.elem.disabled = false;
+                    })
+                } else {
+                    data.elem.disabled = false;
+                    layer.msg(out.message)
+                }
+            }, "json");
+            return false;
+        })
+
+        //弹出层
+        layer.open({
+            type: 1,
+            title: '章节目录',
+            offset: 'r',
+            shade: 0,
+            closeBtn: 0,
+            maxHeight: 500,
+            content: $('#chapterIndex')
+        });
+    });
+
+    window.onbeforeunload = function () {
+        var scrollPos;
+        if (typeof window.pageYOffset != 'undefined') {
+            scrollPos = window.pageYOffset;
+        }
+        else if (typeof document.compatMode != 'undefined' && document.compatMode != 'BackCompat') {
+            scrollPos = document.documentElement.scrollTop;
+        }
+        else if (typeof document.body != 'undefined') {
+            scrollPos = document.body.scrollTop;
+        }
+        document.cookie = "scrollTop=" + scrollPos; //存储滚动条位置到cookies中
+    };
+    window.onload = function () {
+        if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
+            var arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
+            document.documentElement.scrollTop = parseInt(arr[1]);
+            document.body.scrollTop = parseInt(arr[1]);
+        }
+    };
+</script>

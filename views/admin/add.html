@@ -1,0 +1,140 @@
+<div class="layui-layout layui-layout-admin" style="padding-left: 40px;margin-top: 20px;">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+                <input type="text" name="login_name" lay-verify="required"
+                       lay-verType="tips" class="layui-input login_name">
+            </div>
+            <div class="layui-form-mid layui-word-aux">*</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">微信/QQ</label>
+            <div class="layui-input-inline">
+                <input type="text" name="contact" value="{{.Contact}}" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">设置密码</label>
+            <div class="layui-input-inline">
+                <input type="password" name="password_new1" id="password_new1" lay-verify="pass"
+                       autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">* 6到16个字符</div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">重复密码</label>
+            <div class="layui-input-inline">
+                <input type="password" name="password_new2" id="password_new2" lay-verify="repass"
+                       autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">*</div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色</label>
+            <div class="layui-input-inline">
+            {{if eq .Role -1}}
+                <input type="radio" name="role" value="1" title="数据员" checked>
+                <input type="radio" name="role" value="2" title="审核员">
+            {{else}}
+            {{if eq .Role 1}}
+                <input type="radio" name="role" value="1" title="数据员" checked>
+            {{else}}
+                <input type="radio" name="role" value="2" title="审核员" checked>
+            {{end}}
+            {{end}}
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" id="submit" lay-submit="" lay-filter="sub">保存</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use('form', function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+
+        function openLoading(elemId, layer) {
+            $(elemId).disabled = true;
+            loaded = layer.load(1);
+        }
+
+        function closeLoading(elemId, layer) {
+            $(elemId).disabled = false;
+            layer.close(loaded);
+        }
+
+        form.verify({
+            pass: function (value, item) {
+                if (!$('.password').is(":hidden")) {
+                    if (value.length < 6 || value.length > 16) {
+                        return '密码长度不合规定';
+                    }
+                }
+            },
+            repass: function (value, item) {
+                if (!$('.password').is(":hidden")) {
+                    var one = $('#password_new1').val();
+                    if (one !== value) {
+                        return '两次密码不一致';
+                    }
+                }
+            }
+        });
+
+        $(".login_name").bind("input propertychange change", function (event) {
+            var s = $(".login_name").val();
+            var data = {"login_name": s};
+            $.get('{{urlfor "AdminController.AjaxUserName"}}', data, function (out) {
+                if (out.status === 0) {
+                    $('.login_name').removeClass("layui-form-danger");
+                } else {
+                    $('.login_name').addClass("layui-form-danger");
+                    layer.tips(out.message, '.login_name');
+                }
+            });
+        });
+
+        form.on('submit(sub)', function (data) {
+            var form_data = data.field;
+            var elemId = "#submit";
+
+            var send_data = {};
+
+            if ($('.login_name').hasClass("layui-form-danger")) {
+                layer.tips("用户名已存在", '.login_name');
+                return false;
+            }
+
+            openLoading(elemId, layer);
+            send_data["user_name"] = form_data["login_name"];
+            send_data["contact"] = form_data["contact"];
+            send_data["role"] = form_data["role"];
+
+            // Password
+            var newSalt = '{{.NewSalt}}';
+            var newPass = $('#password_new1').val();
+            send_data["pass_md5"] = MD5(32, newPass + newSalt);
+            send_data["pass_salt"] = newSalt;
+
+            $.post('{{urlfor "AdminController.AjaxUserAdd"}}', send_data, function (out) {
+                closeLoading(elemId, layer);
+                if (out.status === 0) {
+                    layer.msg("添加成功", {icon: 1})
+                } else {
+                    layer.msg(out.message)
+                }
+            }, "json");
+            return false;
+        });
+        form.render();
+    });
+
+</script>

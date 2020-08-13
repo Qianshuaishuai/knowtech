@@ -1,0 +1,306 @@
+<style>
+    .main {
+        text-align: center; /*让div内部文字居中*/
+        background-color: #fff;
+        width: 800px;
+        margin: auto;
+        padding:10px;
+    }
+</style>
+
+<div class="main">
+    <form class="layui-form">
+        <div class="layui-row layui-col-space8">
+            <div class="layui-col-md9">
+                <input name="q" class="layui-input" autocomplete="off" lay-verify="required"
+                       placeholder="试题ID 或 试题内容">
+            </div>
+            <div class="layui-col-md3">
+                <button class="layui-btn" lay-filter="search" lay-submit>搜索一下</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<fieldset class="layui-elem-field">
+    <legend>试题详情</legend>
+    <div class="layui-layout layui-layout-admin" style="padding-left: 40px;margin-top: 20px;">
+        <form class="layui-form layui-form-pane">
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题ID</label>
+                <div class="layui-input-block">
+                    <input type="text" name="question_id" value="{{.Data.QuestionId}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题内容</label>
+                <div class="layui-input-block">
+                    <textarea name="question_content" class="layui-textarea">{{.Data.Content}}</textarea>
+                </div>
+            </div>
+        {{if .IsBig}}
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题分数</label>
+                <div class="layui-input-block">
+                    <input type="text" name="question_score" value="大题的分数由各小题分数相加得到" readonly
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">问题集合</label>
+                <div class="layui-input-block" style="padding: 10px">
+                    <div class="layui-fluid">
+                        <div class="layui-row layui-col-space10">
+                        {{range $i,$e := .Questions}}
+                            <div class="layui-col-md2">
+                                <a class="layui-btn layui-btn-primary"
+                                   href="/question/detail?question_id={{$e}}">{{$e}}</a>
+                            </div>
+                        {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{else}}
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题解析</label>
+                <div class="layui-input-block">
+                    <textarea name="s_question_solution" class="layui-textarea">{{.Data.Solution}}</textarea>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题来源</label>
+                <div class="layui-input-block">
+                    <input type="text" name="question_source" value="{{.Data.Source}}" readonly class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题分数</label>
+                <div class="layui-input-block">
+                    <input type="text" name="s_question_score" value="{{.Data.Score}}"
+                           lay-verify="number" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题类型</label>
+                <div class="layui-input-block">
+                {{/*仅仅支持客观填空 主观填空 互换*/}}
+                    <select name="s_question_type" id="s_question_type" lay-verify="required">
+                    {{range $key,$value := .QuestionTypeMap}}
+                        <option value="{{$key}}" {{if eq $key $.Data.RealType}} selected {{end}}>{{$value}}</option>
+                    {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题难度</label>
+                <div class="layui-input-block">
+                    <input type="text" name="s_question_difficulty" value="{{.Data.Difficulty}}"
+                           lay-verify="number" class="layui-input">
+                </div>
+            </div>
+        {{if .Data.Options}}
+            <p style="display: none" id="options_len">{{.Data.Options|len}}</p>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题选项</label>
+                <div class="layui-input-block">
+                {{range $i,$e := .Data.Options}}
+                    <input type="text" name="s_question_options{{$i}}" value="{{$e}}" class="layui-input">
+                    <input type="hidden" id="options{{$i}}" value="{{$e}}">
+                {{end}}
+                </div>
+            </div>
+        {{end}}
+            <p style="display: none" id="answers_len">{{.Data.RealAnswer|len}}</p>
+            <div class="layui-form-item" pane>
+                <label class="layui-form-label">试题答案</label>
+                <div class="layui-input-block">
+                {{range $i,$e := .Data.RealAnswer}}
+                    <input type="text" name="s_question_answer{{$i}}" value="{{$e}}" class="layui-input"
+                           lay-verify="answer">
+                    <input type="hidden" id="answers{{$i}}" value="{{$e}}">
+                {{end}}
+                </div>
+            </div>
+        {{end}}
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="question">修改</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</fieldset>
+<script>
+    layui.use(['form', 'element', 'layer', 'jquery', 'util'], function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var util = layui.util;
+
+        //Top按钮
+        util.fixbar({
+            bar1: false
+        });
+
+        var allAns = [];
+        form.verify({
+            answer: function (value, item) { //value：表单的值、item：表单的DOM对象
+                var questionType = '{{.Data.RealType}}';
+                if (questionType == '10001' ||
+                        questionType == '10002' ||
+                        questionType == '10003') {
+                    var options_len = parseInt($('#options_len').text());
+
+                    if (value.length != 1) {
+                        allAns = [];
+                        return '选择题答案只允许A/B/C/D/E/F...'
+                    }
+
+                    var reString = "[A-" + String.fromCharCode('A'.charCodeAt(0) + (options_len - 1)) + "]";
+                    var re = new RegExp(reString);
+
+                    if (!re.test(value)) {
+                        allAns = [];
+                        return '选择题答案只允许A/B/C/D/E/F...'
+                    }
+
+                    //看看有没有其它选项跟它相等
+                    if (allAns.length > 0) {
+                        for (var j in allAns) {
+                            if (allAns[j] == value) {
+                                allAns = [];
+                                return '答案不能重复！！！'
+                            }
+                        }
+                    } else {
+                        allAns.push(value)
+                    }
+                }
+
+                if (questionType == '10004') {
+                    if (value != "正确" && value != "错误") {
+                        return '判断题答案只能出现“正确”/“错误”';
+                    }
+                }
+            }
+        });
+
+        form.on('submit(question)', function (data) {
+            allAns = [];
+            var form_data = data.field;
+            var send_data = {};
+            send_data.question_id = form_data["question_id"];
+            var isB = '{{.IsBig}}';
+            send_data.isBig = isB;
+            send_data.s_question_type = form_data["s_question_type"];
+
+            var old_question_content = trim('{{.Data.Content}}');
+
+            if (form_data["question_content"].toString() != old_question_content) {
+                send_data.question_content = form_data["question_content"]
+            }
+
+            if (isB === "false") {
+                var old_s_question_solution = trim('{{.Data.Solution}}')
+                var old_s_question_score = '{{.Data.Score}}'
+                var old_s_question_difficulty = '{{.Data.Difficulty}}'
+                if (form_data["s_question_solution"].toString() != old_s_question_solution) {
+                    send_data.s_question_solution = form_data["s_question_solution"]
+                }
+                if (form_data["s_question_score"].toString() != old_s_question_score) {
+                    send_data.s_question_score = form_data["s_question_score"]
+                }
+                if (form_data["s_question_difficulty"].toString() != old_s_question_difficulty) {
+                    send_data.s_question_difficulty = form_data["s_question_difficulty"]
+                }
+
+                var old_s_question_options = '{{.Data.Options}}'
+                if (old_s_question_options !== "[]") {
+                    var options_len = parseInt($('#options_len').text())
+                    var op = {};
+                    for (var i = 0; i < options_len; i++) {
+                        var old_option = trim($('#options' + i).val());
+                        if (form_data["s_question_options" + i].toString() != old_option) {
+                            op[i] = form_data["s_question_options" + i]
+                        }
+                    }
+                    var length = Object.keys(op).length;
+                    if (length !== 0) {
+                        for (var i in op) {
+                            send_data["options" + i] = op[i];
+                        }
+                        send_data.op_len = options_len;
+                    }
+                }
+
+                var answer_len = parseInt($('#answers_len').text())
+                var an = {};
+                for (var i = 0; i < answer_len; i++) {
+                    var old_answer = trim($('#answers' + i).val());
+                    if (form_data["s_question_answer" + i].toString() != old_answer) {
+                        an[i] = form_data["s_question_answer" + i]
+                    }
+                }
+                var lenan = Object.keys(an).length;
+                if (lenan !== 0) {
+                    for (var i in an) {
+                        send_data["answers" + i] = an[i];
+                    }
+                    send_data.an_len = answer_len;
+                }
+            }
+
+            data.elem.disabled = true;
+            layer.load(2);
+            $.post('{{urlfor "QuestionController.Edit"}}', send_data, function (out) {
+                if (out.status == 0) {
+                    layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                        window.location.reload();
+                        data.elem.disabled = false;
+                    })
+                } else {
+                    data.elem.disabled = false;
+                    layer.msg(out.message)
+                }
+            }, "json");
+            return false;
+        });
+
+        form.on('submit(search)', function (data) {
+            var field = data.field;
+            var id = parseInt(field["q"]);
+
+            layer.load(2, {time: 10*1000});
+            if (isNaN(id)) {
+                window.location.href = "/question/detail?question_q=" + field["q"];
+            } else {
+                window.location.href = "/question/detail?question_id=" + id;
+            }
+            return false;
+        });
+    });
+
+    window.onbeforeunload = function () {
+        var scrollPos;
+        if (typeof window.pageYOffset != 'undefined') {
+            scrollPos = window.pageYOffset;
+        }
+        else if (typeof document.compatMode != 'undefined' && document.compatMode != 'BackCompat') {
+            scrollPos = document.documentElement.scrollTop;
+        }
+        else if (typeof document.body != 'undefined') {
+            scrollPos = document.body.scrollTop;
+        }
+        document.cookie = "scrollTop=" + scrollPos; //存储滚动条位置到cookies中
+    };
+    window.onload = function () {
+        if (document.cookie.match(/scrollTop=([^;]+)(;|$)/) != null) {
+            var arr = document.cookie.match(/scrollTop=([^;]+)(;|$)/); //cookies中不为空，则读取滚动条位置
+            document.documentElement.scrollTop = parseInt(arr[1]);
+            document.body.scrollTop = parseInt(arr[1]);
+        }
+    };
+
+</script>

@@ -1,0 +1,25 @@
+<div style="padding: 10px">
+    <table class="layui-table">
+        <colgroup>
+            <col align="center" width="10%">
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th >字段名</th>
+            <th >旧值</th>
+            <th >新值</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range $index,$elem := .Detail}}
+        <tr>
+            <td>{{$elem.FieldName}}</td>
+            <td>{{$elem.Old}}</td>
+            <td>{{$elem.New}}</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</div>

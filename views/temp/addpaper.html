@@ -1,0 +1,187 @@
+<style>
+    .site-block {
+        border: 1px solid #f0f0f0;
+        padding: 10px;
+    }
+</style>
+
+<div class="layui-layout layui-layout-admin" style="padding-left: 20px;margin-top: 20px;">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">试卷名称</label>
+            <div class="layui-input-block">
+                <input type="text" id="paper_name" name="paper_name"
+                       placeholder="统一格式：试卷年份+省市+学校+学期+课程名+试卷类型   例：2018年广东广州市白云区白云小学八年级上语文期末测试" class="layui-input"
+                       lay-verify="required">
+                <button style="margin-top: 8px" class="layui-btn layui-btn-sm" id="autoGenerate">自动生成</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">试卷总分</label>
+            <div class="layui-input-block">
+                <input type="text" id="paper_full_score" lay-verify="integer"
+                       name="paper_full_score" value="100"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">试卷用时(分)</label>
+            <div class="layui-input-block">
+                <input type="text" id="paper_time" name="paper_time" lay-verify="integer" value="120"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">试卷年份</label>
+            <div class="layui-input-block">
+                <input type="text" id="paper_years" name="paper_years" lay-verify="integer" value="2018"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属课程</label>
+            <div class="layui-input-block">
+                <select name="paper_courses" id="paper_courses" lay-verify="required">
+                {{range $index,$elem := .CourseList}}
+                    <option value="{{$elem.CourseId}}">{{$elem.Name}}
+                    </option>
+                {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属学期</label>
+            <div class="layui-input-block">
+                <select name="paper_semesters" id="paper_semesters" lay-verify="required">
+                {{range $index,$elem := .SemesterList}}
+                    <option value="{{$elem.SemesterId}}">{{$elem.Name}}
+                    </option>
+                {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">试卷类型</label>
+            <div class="layui-input-block">
+                <select name="paper_types" id="paper_types" lay-verify="required">
+                {{range $index,$elem := .TypeList}}
+                    <option value="{{$elem.Id}}">{{$elem.Name}}
+                    </option>
+                {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">试卷难度</label>
+            <div class="layui-input-block">
+                <div class="site-block">
+                    <input type="radio" name="paper_difficulty" value="1" title="超困难">
+                    <input type="radio" name="paper_difficulty" value="3" title="困难">
+                    <input type="radio" name="paper_difficulty" value="4.5" title="中等" checked>
+                    <input type="radio" name="paper_difficulty" value="5.5" title="简单">
+                    <input type="radio" name="paper_difficulty" value="6.5" title="炒鸡简单">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">适用省份</label>
+            <div class="layui-input-block">
+                <div class="site-block">
+                {{range $index,$elem := .ProvinceList}}
+                    <input type="checkbox" name="province{{$index}}" value="{{$elem.ProvinceId}}"
+                           title="{{$elem.Name}}">
+                {{end}}
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="saveAddPaper">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use(['table', 'form', 'element'], function () {
+        var form = layui.form;
+        var $ = layui.$;
+        var layer = layui.layer;
+
+        $('#autoGenerate').on('click', function () {
+            var years = getValOrPlaceHolder('#paper_years');
+
+            var courses = $('#paper_courses').find("option:selected").text();
+            var semesters = $('#paper_semesters').find("option:selected").text();
+            var type = $('#paper_types').find("option:selected").text();
+
+            $('#paper_name').val(years + "年" + trim(semesters) + trim(courses).substring(2) + trim(type));
+            return false
+        });
+
+        function getValOrPlaceHolder(id) {
+            var re = $(id).val();
+            if (re.length === 0) {
+                re = $(id).attr("placeholder")
+            }
+            return re
+        }
+
+        form.verify({
+            integer: function (value, item) {
+                value = trim(value);
+                if (/[^0-9]/.test(value)) {
+                    return '只能为正整数';
+                }
+            }
+        });
+
+        form.on('submit(saveAddPaper)', function (data) {
+            var form_data = data.field;
+            var send_data = {};
+
+            //名称
+            send_data.paper_name = form_data["paper_name"];
+            //总分
+            send_data.paper_full_score = getValOrPlaceHolder('#paper_full_score');
+            //用时
+            send_data.paper_time = getValOrPlaceHolder('#paper_time');
+            //年份
+            send_data.paper_years = getValOrPlaceHolder('#paper_years');
+            //所属课程ID
+            send_data.paper_course = form_data["paper_courses"];
+            //所属学期
+            send_data.paper_semester = form_data["paper_semesters"];
+            //试卷类型
+            send_data.paper_type = form_data["paper_types"];
+            //试卷难度
+            send_data.paper_difficulty = form_data["paper_difficulty"];
+            //使用省份
+            var pro = "";
+            for (var i = 0; i < 31; i++) {
+                if (form_data["province" + i]) {
+                    pro += form_data["province" + i] + ","
+                }
+            }
+
+            send_data.paper_provinces = pro;
+
+            data.elem.disabled = true;
+            layer.load(2);
+            $.post('{{urlfor "TempController.SaveAddPaper"}}', send_data, function (out) {
+                if (out.status === 0) {
+                    layer.msg("操作成功", {icon: 1, time: 2000}, function () {
+                        // 跳转到列表页
+                        window.location.href = "/temp/addpaperlist";
+                        data.elem.disabled = false;
+                    })
+                } else {
+                    data.elem.disabled = false;
+                    layer.msg(out.message)
+                }
+            }, "json");
+
+            return false;
+        });
+    });
+</script>

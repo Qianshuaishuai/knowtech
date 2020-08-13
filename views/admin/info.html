@@ -1,0 +1,178 @@
+<div class="layui-layout layui-layout-admin" style="padding-left: 40px;margin-top: 20px;">
+    <form class="layui-form">
+        <input type="hidden" id="id" name="id" value="{{.UserId}}">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色</label>
+            <div class="layui-input-inline">
+                <input type="text" value="{{.RoleStr}}" readonly class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+                <input type="text" name="login_name" value="{{.LoginName}}"
+                       lay-verType="tips" class="layui-input login_name">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">微信/QQ</label>
+            <div class="layui-input-inline">
+                <input type="text" name="contact" value="{{.Contact}}" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码修改</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="reset_pwd" lay-verify="reset_pwd" value="1" title="是">
+                <input type="radio" name="reset_pwd" lay-verify="reset_pwd" value="2" title="否" checked>
+            </div>
+            <div class="layui-form-mid layui-word-aux"></div>
+        </div>
+
+        <div class="layui-form-item password layui-anim layui-anim-up" style="display:none;">
+            <label class="layui-form-label">旧密码</label>
+            <div class="layui-input-inline">
+                <input type="password" name="password_old" id="password_old" autocomplete="off"
+                       placeholder="旧密码" class="layui-input" value="">
+            </div>
+            <div class="layui-form-mid layui-word-aux">*</div>
+        </div>
+
+        <div class="layui-form-item password layui-anim layui-anim-up" style="display:none;">
+            <label class="layui-form-label">设置密码</label>
+            <div class="layui-input-inline">
+                <input type="password" name="password_new1" id="password_new1" lay-verify="pass"
+                       autocomplete="off"
+                       placeholder="新密码" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">* 6到16个字符</div>
+        </div>
+
+        <div class="layui-form-item password layui-anim layui-anim-up" style="display:none;">
+            <label class="layui-form-label">重复密码</label>
+            <div class="layui-input-inline">
+                <input type="password" name="password_new2" id="password_new2" lay-verify="repass"
+                       autocomplete="off"
+                       placeholder="新密码" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">*</div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="sub">保存</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    layui.use('form', function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+
+        form.on('radio', function (data) {
+            if (data.value == 1) {
+                $(".password").show()
+            } else {
+                $(".password").hide()
+            }
+        });
+
+        form.verify({
+            pass: function (value, item) {
+                if (!$('.password').is(":hidden")) {
+                    if (value.length < 6 || value.length > 16) {
+                        return '密码长度不合规定';
+                    }
+                }
+            },
+            repass: function (value, item) {
+                if (!$('.password').is(":hidden")) {
+                    var one = $('#password_new1').val();
+                    if (one !== value) {
+                        return '两次密码不一致';
+                    }
+                }
+            }
+        });
+
+        $(".login_name").bind("input propertychange change", function (event) {
+            var s = $(".login_name").val();
+            var data = {"login_name": s};
+            $.get('{{urlfor "AdminController.AjaxUserName"}}', data, function (out) {
+                if (out.status === 0) {
+                    $('.login_name').removeClass("layui-form-danger");
+                } else {
+                    $('.login_name').addClass("layui-form-danger");
+                    layer.tips(out.message, '.login_name');
+                }
+            });
+        });
+
+        form.on('submit(sub)', function (data) {
+            var form_data = data.field;
+            var oldUser = '{{.LoginName}}';
+            var oldContact = '{{.Contact}}';
+            var newLoginName = $('.login_name').val();
+
+            var send_data = {};
+
+            send_data["id"] = $("#id").val();
+
+            if ($('.login_name').hasClass("layui-form-danger") && oldUser !== newLoginName) {
+                layer.tips("用户名已存在", '.login_name');
+                return false;
+            }
+
+            if (oldUser !== trim(form_data["login_name"])) {
+                send_data["user_name"] = form_data["login_name"]
+            }
+
+            if (oldContact !== trim(form_data["contact"])) {
+                send_data["contact"] = form_data["contact"]
+            }
+
+            // Password
+            var oldPass = '{{.Password}}';
+            var oldSalt = '{{.OldSalt}}';
+            var newSalt = '{{.NewSalt}}';
+
+            if (trim(form_data["password_old"].length) > 0) {
+                if (checkOldPass(form_data["password_old"], oldPass, oldSalt)) {
+                    var newPass = $('#password_new1').val();
+                    send_data["pass_md5"] = MD5(32, newPass + newSalt);
+                    send_data["pass_salt"] = newSalt;
+                } else {
+                    $('#password_old').addClass("layui-form-danger");
+                    $('#password_old').focus();
+                    layer.tips("密码不正确", '#password_old');
+                    return false;
+                }
+            }
+
+            if (Object.keys(send_data).length <= 1) {
+                return false;
+            }
+
+            $.post('{{urlfor "AdminController.AjaxSave"}}', send_data, function (out) {
+                if (out.status === 0) {
+                    layer.msg("操作成功,请重新登录", {icon: 1}, function () {
+                        top.location.href = "/login_out"
+                    })
+                } else {
+                    layer.msg(out.message)
+                }
+            }, "json");
+            return false;
+        });
+        form.render();
+    });
+
+    function checkOldPass(pass, oldPass, oldSalt) {
+        var test = pass + oldSalt;
+        var md5test = MD5(32, test);
+        return md5test === oldPass;
+    }
+</script>
